@@ -15,8 +15,8 @@
 		B8C93F371ED720C500EE52BF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B8C93F351ED720C500EE52BF /* LaunchScreen.storyboard */; };
 		B8C93F421ED720C500EE52BF /* JKContactTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B8C93F411ED720C500EE52BF /* JKContactTests.m */; };
 		B8C93F4D1ED720C500EE52BF /* JKContactUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = B8C93F4C1ED720C500EE52BF /* JKContactUITests.m */; };
-		B8C93F601ED7214300EE52BF /* JKAddressBook.m in Sources */ = {isa = PBXBuildFile; fileRef = B8C93F5D1ED7214300EE52BF /* JKAddressBook.m */; };
-		B8C93F611ED7214300EE52BF /* JKAddressModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B8C93F5F1ED7214300EE52BF /* JKAddressModel.m */; };
+		B8C93F601ED7214300EE52BF /* JKContactBook.m in Sources */ = {isa = PBXBuildFile; fileRef = B8C93F5D1ED7214300EE52BF /* JKContactBook.m */; };
+		B8C93F611ED7214300EE52BF /* JKContactModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B8C93F5F1ED7214300EE52BF /* JKContactModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,10 +54,10 @@
 		B8C93F4C1ED720C500EE52BF /* JKContactUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JKContactUITests.m; sourceTree = "<group>"; };
 		B8C93F4E1ED720C500EE52BF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B8C93F5A1ED7212900EE52BF /* JKCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JKCommon.h; sourceTree = "<group>"; };
-		B8C93F5C1ED7214300EE52BF /* JKAddressBook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JKAddressBook.h; sourceTree = "<group>"; };
-		B8C93F5D1ED7214300EE52BF /* JKAddressBook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JKAddressBook.m; sourceTree = "<group>"; };
-		B8C93F5E1ED7214300EE52BF /* JKAddressModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JKAddressModel.h; sourceTree = "<group>"; };
-		B8C93F5F1ED7214300EE52BF /* JKAddressModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JKAddressModel.m; sourceTree = "<group>"; };
+		B8C93F5C1ED7214300EE52BF /* JKContactBook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JKContactBook.h; sourceTree = "<group>"; };
+		B8C93F5D1ED7214300EE52BF /* JKContactBook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JKContactBook.m; sourceTree = "<group>"; };
+		B8C93F5E1ED7214300EE52BF /* JKContactModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JKContactModel.h; sourceTree = "<group>"; };
+		B8C93F5F1ED7214300EE52BF /* JKContactModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JKContactModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,7 +88,7 @@
 		B8C93F1B1ED720C500EE52BF = {
 			isa = PBXGroup;
 			children = (
-				B8C93F5B1ED7214300EE52BF /* JKContactAddressBook */,
+				B8C93F5B1ED7214300EE52BF /* JKContactBook */,
 				B8C93F261ED720C500EE52BF /* JKContact */,
 				B8C93F401ED720C500EE52BF /* JKContactTests */,
 				B8C93F4B1ED720C500EE52BF /* JKContactUITests */,
@@ -149,15 +149,15 @@
 			path = JKContactUITests;
 			sourceTree = "<group>";
 		};
-		B8C93F5B1ED7214300EE52BF /* JKContactAddressBook */ = {
+		B8C93F5B1ED7214300EE52BF /* JKContactBook */ = {
 			isa = PBXGroup;
 			children = (
-				B8C93F5C1ED7214300EE52BF /* JKAddressBook.h */,
-				B8C93F5D1ED7214300EE52BF /* JKAddressBook.m */,
-				B8C93F5E1ED7214300EE52BF /* JKAddressModel.h */,
-				B8C93F5F1ED7214300EE52BF /* JKAddressModel.m */,
+				B8C93F5C1ED7214300EE52BF /* JKContactBook.h */,
+				B8C93F5D1ED7214300EE52BF /* JKContactBook.m */,
+				B8C93F5E1ED7214300EE52BF /* JKContactModel.h */,
+				B8C93F5F1ED7214300EE52BF /* JKContactModel.m */,
 			);
-			path = JKContactAddressBook;
+			path = JKContactBook;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -294,9 +294,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8C93F601ED7214300EE52BF /* JKAddressBook.m in Sources */,
+				B8C93F601ED7214300EE52BF /* JKContactBook.m in Sources */,
 				B8C93F2F1ED720C500EE52BF /* ViewController.m in Sources */,
-				B8C93F611ED7214300EE52BF /* JKAddressModel.m in Sources */,
+				B8C93F611ED7214300EE52BF /* JKContactModel.m in Sources */,
 				B8C93F2C1ED720C500EE52BF /* AppDelegate.m in Sources */,
 				B8C93F291ED720C500EE52BF /* main.m in Sources */,
 			);
@@ -451,6 +451,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = Y9TW8FTXP2;
 				INFOPLIST_FILE = JKContact/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.buakawlee.www.JKContact;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -463,6 +464,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = Y9TW8FTXP2;
 				INFOPLIST_FILE = JKContact/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.buakawlee.www.JKContact;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -534,6 +536,7 @@
 				B8C93F531ED720C500EE52BF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B8C93F541ED720C500EE52BF /* Build configuration list for PBXNativeTarget "JKContactTests" */ = {
 			isa = XCConfigurationList;
@@ -542,6 +545,7 @@
 				B8C93F561ED720C500EE52BF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B8C93F571ED720C500EE52BF /* Build configuration list for PBXNativeTarget "JKContactUITests" */ = {
 			isa = XCConfigurationList;
@@ -550,6 +554,7 @@
 				B8C93F591ED720C500EE52BF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

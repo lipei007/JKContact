@@ -6,9 +6,9 @@
 //  Copyright © 2016年 Emerys. All rights reserved.
 //
 
-#import "JKAddressModel.h"
+#import "JKContactModel.h"
 
-@implementation JKAddressModel
+@implementation JKContactModel
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key {
 

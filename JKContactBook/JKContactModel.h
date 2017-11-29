@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface JKAddressModel : NSObject
+@interface JKContactModel : NSObject
 
 @property (nonatomic,copy) NSString *name;
 

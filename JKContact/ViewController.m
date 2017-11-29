@@ -7,8 +7,8 @@
 //
 
 #import "ViewController.h"
-#import "JKAddressBook.h"
-#import "JKAddressModel.h"
+#import "JKContactBook.h"
+#import "JKContactModel.h"
 
 @interface ViewController ()
 
@@ -20,12 +20,14 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    [[JKAddressBook sharedAddressBook] sortedAddressBook:^(NSMutableDictionary *address, NSArray *nameKeys) {
+    [[JKContactBook sharedContactBook] addContact:nil];
+    
+    [[JKContactBook sharedContactBook] sortedContactBook:^(NSMutableDictionary *address, NSArray *nameKeys) {
         
         for (NSString *key in nameKeys) {
             NSLog(@"------------------%@-----------------------",key);
             NSArray *addr = [address objectForKey:key];
-            for (JKAddressModel *model in addr) {
+            for (JKContactModel *model in addr) {
                 
                 NSLog(@"%@  %@",model.name,model.phone);
                 

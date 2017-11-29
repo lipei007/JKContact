@@ -6,38 +6,88 @@
 //  Copyright © 2016年 Emerys. All rights reserved.
 //
 
-#import "JKAddressBook.h"
+#import "JKContactBook.h"
 #import <AddressBook/AddressBook.h>
 #ifdef __IPHONE_9_0
 #import <Contacts/Contacts.h>
 #endif
-#import "JKAddressModel.h"
+#import "JKContactModel.h"
 #import "JKCommon.h"
+
+#ifndef JK_iOS9Later
+#define JK_iOS9Later ([[[UIDevice currentDevice] systemVersion] floatValue] >= 9.0)
+#endif
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
 
-@interface JKAddressBook ()
+@interface JKContactBook ()
 
 @property (nonatomic,assign) int visitAddressBookByMethod;
-@property (nonatomic,copy) getAddressBook block;
-@property (nonatomic,copy) addressBookDataFailure failure;
+@property (nonatomic,copy) GetContactBook block;
+@property (nonatomic,copy) GetContactBookFailure failure;
 
 @end
 
-@implementation JKAddressBook
+@implementation JKContactBook
 
-+ (JKAddressBook *)sharedAddressBook {
-    static JKAddressBook *addressBook = nil;
++ (JKContactBook *)sharedContactBook {
+    static JKContactBook *addressBook = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        addressBook = [[JKAddressBook alloc] init];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-           [addressBook requestAddressBookAuthorizationSuccess];
-        });
+        addressBook = [[JKContactBook alloc] init];        
     });
     return addressBook;
+}
+
+- (void)requestAuthorization {
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [weakSelf requestAddressBookAuthorizationSuccess];
+    });
+    
+}
+
+- (void)requestAddressBookAuthorizationSuccess {
+#ifdef __IPHONE_9_0
+    if (JK_iOS9Later) {
+        // 1.判断是否授权成功,若授权成功直接return
+        if ([CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts] == CNAuthorizationStatusAuthorized) return;
+        // 2.创建通讯录
+        CNContactStore *store = [[CNContactStore alloc] init];
+        // 3.授权
+        [store requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
+            if (granted) {
+                NSLog(@"授权成功");
+                
+            }else{
+                NSLog(@"授权失败");
+            }
+        }];
+    }
+    else
+#endif
+    {
+        // 1.获取授权的状态
+        ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
+        
+        // 2.判断授权状态,如果是未决定状态,才需要请求
+        if (status == kABAuthorizationStatusNotDetermined) {
+            
+            // 3.创建通讯录进行授权
+            ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
+            ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error) {
+                if (granted) {
+                    NSLog(@"授权成功");
+                    
+                } else {
+                    NSLog(@"授权失败");
+                    
+                }
+            });
+        }
+        
+    }
 }
 
 #pragma mark - utils
@@ -73,51 +123,7 @@
     return [predA evaluateWithObject:firstString] ? firstString : @"#";
 }
 
-
-- (void)requestAddressBookAuthorizationSuccess {
-#ifdef __IPHONE_9_0
-    CGFloat version = [UIDevice currentDevice].systemVersion.doubleValue;
-    if (version >= 9) {
-        // 1.判断是否授权成功,若授权成功直接return
-        if ([CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts] == CNAuthorizationStatusAuthorized) return;
-        // 2.创建通讯录
-        CNContactStore *store = [[CNContactStore alloc] init];
-        // 3.授权
-        [store requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
-            if (granted) {
-                NSLog(@"授权成功");
-                
-            }else{
-                NSLog(@"授权失败");
-            }
-        }];
-    }
-    else
-#endif
-    {
-        // 1.获取授权的状态
-        ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
-        
-        // 2.判断授权状态,如果是未决定状态,才需要请求
-        if (status == kABAuthorizationStatusNotDetermined) {
-            
-            // 3.创建通讯录进行授权
-            ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
-            ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error) {
-                if (granted) {
-                    NSLog(@"授权成功");
-
-                } else {
-                    NSLog(@"授权失败");
-
-                }
-            });
-        }
-        
-    }
-}
-
-- (void)sortedAddressBook:(getAddressBook)block failure:(addressBookDataFailure)failure{
+- (void)sortedContactBook:(GetContactBook)block failure:(GetContactBookFailure)failure{
     
     self.visitAddressBookByMethod = 0;
     self.block = block;
@@ -130,7 +136,7 @@
         
         [addressBook enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
             
-            [obj sortedArrayUsingComparator:^NSComparisonResult(JKAddressModel  *obj1, JKAddressModel  *obj2) {
+            [obj sortedArrayUsingComparator:^NSComparisonResult(JKContactModel  *obj1, JKContactModel  *obj2) {
                 
                 return [obj1.name localizedCompare:obj2.name];
                 
@@ -152,7 +158,7 @@
     
 }
 
-- (void)originalAddressBook:(getAddressBook)block failure:(addressBookDataFailure)failure {
+- (void)originalContactBook:(GetContactBook)block failure:(GetContactBookFailure)failure {
     
     self.visitAddressBookByMethod = 1;
     self.block = block;
@@ -172,17 +178,17 @@
 
 #pragma mark - get data
 
-- (void)addressBookData:(NSMutableDictionary *)addressBookDict failure:(addressBookDataFailure)failure {
-    
-    if (JK_iOS9OrLater) {
-        [self from_iOS_9_addressBookData:addressBookDict failure:failure];
+- (void)addressBookData:(NSMutableDictionary *)addressBookDict failure:(GetContactBookFailure)failure {
+
+    if (JK_iOS9Later) {
+        [self iOS_9_later_addressBookData:addressBookDict failure:failure];
     } else {
         [self iOS_9_ago_addressBookData:addressBookDict failure:failure];
     }
     
 }
 
-- (void)addAddress:(JKAddressModel *)model toAddressBook:(NSMutableDictionary *)addressBookDict {
+- (void)addAddress:(JKContactModel *)model toAddressBook:(NSMutableDictionary *)addressBookDict {
     
 //    NSLog(@"%@",model.name);
     //获取到姓名的大写首字母
@@ -205,7 +211,7 @@
     
 }
 
-- (void)iOS_9_ago_addressBookData:(NSMutableDictionary *)addressBookDict failure:(addressBookDataFailure)failure{
+- (void)iOS_9_ago_addressBookData:(NSMutableDictionary *)addressBookDict failure:(GetContactBookFailure)failure{
     // 1.获取授权状态
     ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
     
@@ -227,7 +233,7 @@
     // 5.遍历每个联系人的信息,并装入模型
     for(id personInfo in (__bridge NSArray *)allPeopleArray)
     {
-        JKAddressModel *model = [JKAddressModel new];
+        JKContactModel *model = [JKContactModel new];
         // 5.1获取到联系人
         ABRecordRef person = (__bridge ABRecordRef)(personInfo);
         // 5.2获取姓名
@@ -253,6 +259,9 @@
             
             [model.phone addObject: mobile ? mobile : @"空号"];
             
+            NSString *localizedPhoneTypeString = (__bridge NSString *)(ABAddressBookCopyLocalizedLabel(ABMultiValueCopyLabelAtIndex(phones, i)));
+            NSLog(@"%@: %@",localizedPhoneTypeString,mobile);
+            
         }
         // 5.5将联系人模型回调出去
         [self addAddress:model toAddressBook:addressBookDict];
@@ -267,7 +276,7 @@
 
 
 
-- (void)from_iOS_9_addressBookData:(NSMutableDictionary *)addressDict failure:(addressBookDataFailure)failure {
+- (void)iOS_9_later_addressBookData:(NSMutableDictionary *)addressDict failure:(GetContactBookFailure)failure {
 #ifdef __IPHONE_9_0
     // 1.获取授权状态
     CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
@@ -298,7 +307,7 @@
         NSString *firstName = contact.givenName;
         
         // 创建联系人模型
-        JKAddressModel *model = [JKAddressModel new];
+        JKContactModel *model = [JKContactModel new];
         NSString *name = [NSString stringWithFormat:@"%@%@%@",lastName?lastName:@"",middleName?middleName:@"",firstName?firstName:@""];
         model.name = name.length > 0 ? name : @"#" ;
         
@@ -313,11 +322,101 @@
             CNPhoneNumber *phoneNumber = labelValue.value;
             NSString *mobile = [self removeSpecialSubString:phoneNumber.stringValue];
             [model.phone addObject: mobile ? mobile : @""];
+            
+            NSString *localizedPhoneTypeString = [CNLabeledValue localizedStringForLabel:labelValue.label];
+            NSLog(@"%@: %@",localizedPhoneTypeString,mobile);
         }
         
         [self addAddress:model toAddressBook:addressDict];
         
     }];
+#endif
+}
+
+#pragma mark - Add Contact
+
+- (void)addContact:(JKContactModel *)contact {
+    
+    if (JK_iOS9Later) {
+        [self iOS_9_later_addContact:contact];
+    } else {
+        [self iOS_9_ago_addContact:contact];
+    }
+    
+}
+
+- (void)iOS_9_ago_addContact:(JKContactModel *)contact {
+    
+    ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
+    
+    ABRecordRef newPerson = ABPersonCreate();
+    CFErrorRef error = NULL;
+    // 设置单值属性
+    ABRecordSetValue(newPerson, kABPersonFirstNameProperty, @"Pei", &error);
+    ABRecordSetValue(newPerson, kABPersonLastNameProperty, @"Lee", &error);
+    ABRecordSetValue(newPerson, kABPersonOrganizationProperty, @"US", &error);
+    ABRecordSetValue(newPerson, kABPersonJobTitleProperty, @"Manager", &error);
+    
+    // 设置多值属性
+    // 电话（邮箱类似）
+    ABMutableMultiValueRef phoneMultiValue = ABMultiValueCreateMutable(kABMultiStringPropertyType); // 指明保存到数据类型String
+    ABMultiValueAddValueAndLabel(phoneMultiValue, @"1382556560", kABPersonPhoneMainLabel, NULL);
+    ABMultiValueAddValueAndLabel(phoneMultiValue, @"1392652590", kABPersonPhoneMobileLabel, NULL);
+    ABMultiValueAddValueAndLabel(phoneMultiValue, @"1378753580", kABPersonPhoneIPhoneLabel, NULL);
+    
+    ABRecordSetValue(newPerson, kABPersonPhoneProperty, phoneMultiValue, &error);
+    
+    // 地址
+    ABMultiValueRef addrMultiValue = ABMultiValueCreateMutable(kABMultiDictionaryPropertyType); // 指明保存到数据类型Dictionary
+    NSMutableDictionary *addrDic = [NSMutableDictionary dictionary];
+    [addrDic setObject:@"水井坊 110号" forKey:(NSString *)kABPersonAddressStreetKey];
+    [addrDic setObject:@"成都" forKey:(NSString *)kABPersonAddressCityKey];
+    [addrDic setObject:@"四川" forKey:(NSString *)kABPersonAddressStateKey];
+    [addrDic setObject:@"中国" forKey:(NSString *)kABPersonAddressCountryKey];
+    
+    ABMultiValueAddValueAndLabel(addrMultiValue, (__bridge CFTypeRef)addrDic, kABWorkLabel, NULL);
+    ABRecordSetValue(newPerson, kABPersonAddressProperty, addrMultiValue, &error);
+    
+    // 保存
+    ABAddressBookAddRecord(addressBook, newPerson, &error);
+    ABAddressBookSave(addressBook, &error);
+}
+
+- (void)iOS_9_later_addContact:(JKContactModel *)model {
+#ifdef __IPHONE_9_0
+    
+    CNContactStore *store = [[CNContactStore alloc] init];
+    CNSaveRequest *request = [[CNSaveRequest alloc] init];
+    
+    CNMutableContact *contact = [[CNMutableContact alloc] init];
+    contact.givenName = @"Pei";
+    contact.familyName = @"Lee";
+    contact.organizationName = @"US";
+    contact.jobTitle = @"Manager";
+    
+    // 单值
+    CNPhoneNumber *phone_0 = [CNPhoneNumber phoneNumberWithStringValue:@"1382556560"];
+    CNPhoneNumber *phone_1 = [CNPhoneNumber phoneNumberWithStringValue:@"1392652590"];
+    CNPhoneNumber *phone_2 = [CNPhoneNumber phoneNumberWithStringValue:@"1378753580"];
+    CNLabeledValue *main_labeled_phone = [[CNLabeledValue alloc] initWithLabel:CNLabelPhoneNumberMain value:phone_0];
+    CNLabeledValue *mobile_labeled_phone = [[CNLabeledValue alloc] initWithLabel:CNLabelPhoneNumberMobile value:phone_1];
+    CNLabeledValue *iphone_labeled_phone = [[CNLabeledValue alloc] initWithLabel:CNLabelPhoneNumberiPhone value:phone_2];
+    
+    contact.phoneNumbers = @[main_labeled_phone,mobile_labeled_phone,iphone_labeled_phone];
+    
+    // 多值
+    CNMutablePostalAddress *address = [[CNMutablePostalAddress alloc] init];
+    address.street = @"水井坊 110号";
+    address.city = @"成都";
+    address.state = @"四川";
+    address.country = @"中国";
+    CNLabeledValue *labeld_addr = [[CNLabeledValue alloc] initWithLabel:CNLabelWork value:address];
+    
+    contact.postalAddresses = @[labeld_addr];
+    
+    [request addContact:contact toContainerWithIdentifier:nil];
+    [store executeSaveRequest:request error:nil];
+    
 #endif
 }
 
